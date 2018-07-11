@@ -3,10 +3,10 @@ package style.dx.seckill.service.impl;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import style.dx.seckill.config.Const;
+import style.dx.seckill.config.SeckillProperties;
 import style.dx.seckill.entity.Item;
 import style.dx.seckill.entity.resp.Response;
 import style.dx.seckill.repository.ItemRepository;
@@ -32,13 +32,13 @@ public class HtmlServiceImpl implements HtmlService {
 	);
 	private final Configuration configuration;
 	private final ItemRepository itemRepository;
-	@Value("${spring.freemarker.html.path}")
-	private String path;
+	private final SeckillProperties seckillProperties;
 
 	@Autowired
-	public HtmlServiceImpl(Configuration configuration, ItemRepository itemRepository) {
+	public HtmlServiceImpl(Configuration configuration, ItemRepository itemRepository, SeckillProperties seckillProperties) {
 		this.configuration = configuration;
 		this.itemRepository = itemRepository;
+		this.seckillProperties = seckillProperties;
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class HtmlServiceImpl implements HtmlService {
 		@Override
 		public String call() throws Exception {
 			Template template = configuration.getTemplate("goods.ftl");
-			File file = new File(path + item.getItemId() + ".html");
+			File file = new File(seckillProperties.getHtml() + item.getItemId() + ".html");
 			template.process(item, new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
 			return "success";
 		}

@@ -7,11 +7,14 @@ import org.springframework.data.repository.query.Param;
 import style.dx.seckill.entity.Item;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
-	@Modifying
-	@Query("UPDATE Item i SET i.count=100 WHERE i.itemId=:itemId")
-	void resetItemByItemId(@Param("itemId") long itemId);
-
 	Item findByItemId(long itemId);
+
+	@Query("SELECT i.count FROM Item i WHERE i.itemId=:id")
+	long findCountByItemId(@Param("id") long itemId);
+
+	@Modifying
+	@Query("UPDATE Item i SET i.count=300 WHERE i.itemId=:itemId")
+	void resetItemByItemId(@Param("itemId") long itemId);
 
 	@Modifying
 	@Query("UPDATE Item i SET i.count=i.count-1 WHERE i.itemId=:itemId")

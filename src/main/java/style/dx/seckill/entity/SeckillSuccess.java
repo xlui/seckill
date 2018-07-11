@@ -14,13 +14,13 @@ public class SeckillSuccess implements Serializable {
 	@Column(name = "item_id", nullable = false)
 	private long itemId;
 	private long userId;
-	private short state;
+	private long state;
 	private Timestamp createTime;
 
 	public SeckillSuccess() {
 	}
 
-	public SeckillSuccess(long itemId, long userId, short state, Timestamp createTime) {
+	public SeckillSuccess(long itemId, long userId, long state, Timestamp createTime) {
 		this.itemId = itemId;
 		this.userId = userId;
 		this.state = state;
@@ -51,11 +51,11 @@ public class SeckillSuccess implements Serializable {
 		this.userId = userId;
 	}
 
-	public short getState() {
+	public long getState() {
 		return state;
 	}
 
-	public void setState(short state) {
+	public void setState(long state) {
 		this.state = state;
 	}
 
