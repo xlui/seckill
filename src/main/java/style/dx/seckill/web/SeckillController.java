@@ -11,22 +11,20 @@ import style.dx.seckill.entity.resp.Response;
 import style.dx.seckill.service.SeckillService;
 
 import java.util.Date;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 @RestController
 @RequestMapping("/seckill")
 public class SeckillController {
 	private static final int CUSTOMERS = 1000;
 	private static final Logger LOGGER = LoggerFactory.getLogger(SeckillController.class);
+//	private static ExecutorService executor = Executors.newCachedThreadPool();
 	private static ThreadPoolExecutor executor = new ThreadPoolExecutor(
-			Const.processors,
-			Const.processors * 2,
 			0,
+			Integer.MAX_VALUE,
+			60L,
 			TimeUnit.SECONDS,
-			new LinkedBlockingQueue<>(1000),
+			new SynchronousQueue<>(),
 			Executors.defaultThreadFactory(),
 			new ThreadPoolExecutor.AbortPolicy()
 	);
