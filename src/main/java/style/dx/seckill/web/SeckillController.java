@@ -19,7 +19,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 @RestController
-//@RequestMapping("/seckill")
 public class SeckillController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SeckillController.class);
 	private static final Lock lock = new ReentrantLock(true);
@@ -55,6 +54,9 @@ public class SeckillController {
 		return ret;
 	}
 
+	/**
+	 * Version 1: no lock and no synchronization
+	 */
 	@RequestMapping(value = "/v1", method = RequestMethod.GET)
 	public Response startV1(long itemId) {
 		seckillService.reset(itemId);
@@ -71,6 +73,9 @@ public class SeckillController {
 		return Response.ok(waitForResult(itemId));
 	}
 
+	/**
+	 * Version 2: Reentrant Lock
+	 */
 	@RequestMapping(value = "/v2", method = RequestMethod.GET)
 	public Response startV2(long itemId) {
 		seckillService.reset(itemId);
@@ -86,6 +91,24 @@ public class SeckillController {
 				} finally {
 					lock.unlock();
 				}
+			});
+		}
+
+		return Response.ok(waitForResult(itemId));
+	}
+
+	/**
+	 * Version 3: AOP Reentrant Lock
+	 */
+	@RequestMapping(value = "/v3", method = RequestMethod.GET)
+	public Response startV3(long itemId) {
+		seckillService.reset(itemId);
+
+		for (int i = 1; i <= properties.getCustomers(); i++) {
+			final long user = i;
+			executor.execute(() -> {
+				Response response = seckillService.aopLockStart(itemId, user);
+				LOGGER.info("user {}: {}", user, response.getMessage());
 			});
 		}
 

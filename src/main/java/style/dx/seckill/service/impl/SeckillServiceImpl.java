@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import style.dx.seckill.aop.ServiceLock;
 import style.dx.seckill.entity.Item;
 import style.dx.seckill.entity.SeckillSuccess;
 import style.dx.seckill.entity.resp.Response;
@@ -53,7 +54,7 @@ public class SeckillServiceImpl implements SeckillService {
 		itemRepository.resetItemByItemId(itemId);
 	}
 
-	public Response doSeckill(long itemId, long userId, long count) {
+	private Response doSeckill(long itemId, long userId, long count) {
 		if (count > 0) {
 			itemRepository.seckill(itemId);
 			SeckillSuccess succ = new SeckillSuccess(itemId, userId, count, new Timestamp(new Date().getTime()));
@@ -66,25 +67,25 @@ public class SeckillServiceImpl implements SeckillService {
 	@Override
 	@Transactional
 	public Response normalStart(long itemId, long userId) {
-		long count = itemRepository.findCountByItemId(itemId);
-		return doSeckill(itemId, userId, count);
+		return doSeckill(itemId, userId, itemRepository.findCountByItemId(itemId));
 	}
 
 	@Override
 	@Transactional
 	public Response lockStart(long itemId, long userId) {
-		// if we add lock here, there may be one situation:
+		// if we add `lock` here, there may be one situation:
 		// lock is released, while the transaction have not been committed
-		// when other thread obtain the lock, and get the count from database,
-		// it may see the dirty data, this is called <b>dirty-read.</b>
-		// the solution is upper the lock, to the outside of the transaction.
-		long count = itemRepository.findCountByItemId(itemId);
-		return doSeckill(itemId, userId, count);
+		// at the same time another thread obtain the lock, and get the count
+		// from database, it may see the dirty data, this is called <b>dirty-read.</b>
+		// the solution is to `float up` the lock, to the outside of the transaction.
+		return doSeckill(itemId, userId, itemRepository.findCountByItemId(itemId));
 	}
 
 	@Override
+	@ServiceLock
+	@Transactional
 	public Response aopLockStart(long itemId, long userId) {
-		return null;
+		return doSeckill(itemId, userId, itemRepository.findCountByItemId(itemId));
 	}
 
 	@Override
