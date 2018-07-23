@@ -10,11 +10,7 @@ import style.dx.seckill.config.SeckillProperties;
 import style.dx.seckill.entity.resp.Response;
 import style.dx.seckill.service.SeckillService;
 
-import java.util.Date;
-import java.util.concurrent.Executors;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -41,16 +37,19 @@ public class SeckillController {
 		this.properties = properties;
 	}
 
-	private String waitForResult(long itemId) {
-		String ret = "";
+	private String waitForResult(long itemId, long start, CountDownLatch wait) {
 		try {
-			Thread.sleep(1000 * properties.getWaittime());
-			long count = seckillService.successCount(itemId);
-			ret = "total seckill " + count + " items.";
-			LOGGER.info(ret);
+			wait.await();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+
+		String ret;
+		String cost = "cost about: " + (System.currentTimeMillis() - start) / 1000 + "s.";
+		long count = seckillService.successCount(itemId);
+		ret = "total seckill " + count + " items.";
+		LOGGER.info(ret);
+		LOGGER.info(cost);
 		return ret;
 	}
 
@@ -60,17 +59,27 @@ public class SeckillController {
 	@RequestMapping(value = "/v1", method = RequestMethod.GET)
 	public Response startV1(long itemId) {
 		seckillService.reset(itemId);
+		CountDownLatch latch = new CountDownLatch(properties.getCustomers());
+		CountDownLatch wait = new CountDownLatch(properties.getCustomers());
 
-		LOGGER.info("start seckill version 1, current time [" + new Date() + "]");
+		long start = System.currentTimeMillis();
 		for (int i = 1; i <= properties.getCustomers(); i++) {
 			final long user = i;
 			executor.execute(() -> {
-				Response response = seckillService.normalStart(itemId, user);
-				LOGGER.info("user {}: {}", user, response.getMessage());
+				try {
+					latch.await();
+					Response response = seckillService.normalStart(itemId, user);
+					LOGGER.info("user {}: {}", user, response.getMessage());
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} finally {
+					wait.countDown();
+				}
 			});
+			latch.countDown();
 		}
 
-		return Response.ok(waitForResult(itemId));
+		return Response.ok(waitForResult(itemId, start, wait));
 	}
 
 	/**
@@ -79,22 +88,33 @@ public class SeckillController {
 	@RequestMapping(value = "/v2", method = RequestMethod.GET)
 	public Response startV2(long itemId) {
 		seckillService.reset(itemId);
+		CountDownLatch latch = new CountDownLatch(properties.getCustomers());
+		CountDownLatch wait = new CountDownLatch(properties.getCustomers());
 
-		LOGGER.info("start seckill version 2, current time: " + new Date());
+		long start = System.currentTimeMillis();
 		for (int i = 1; i <= properties.getCustomers(); i++) {
 			final long user = i;
 			executor.execute(() -> {
-				lock.lock();
 				try {
-					Response response = seckillService.lockStart(itemId, user);
-					LOGGER.info("user {}: {}", user, response.getMessage());
+					latch.await();
+
+					lock.lock();
+					try {
+						Response response = seckillService.lockStart(itemId, user);
+						LOGGER.info("user {}: {}", user, response.getMessage());
+					} finally {
+						lock.unlock();
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				} finally {
-					lock.unlock();
+					wait.countDown();
 				}
 			});
+			latch.countDown();
 		}
 
-		return Response.ok(waitForResult(itemId));
+		return Response.ok(waitForResult(itemId, start, wait));
 	}
 
 	/**
@@ -103,15 +123,27 @@ public class SeckillController {
 	@RequestMapping(value = "/v3", method = RequestMethod.GET)
 	public Response startV3(long itemId) {
 		seckillService.reset(itemId);
+		CountDownLatch latch = new CountDownLatch(properties.getCustomers());
+		CountDownLatch wait = new CountDownLatch(properties.getCustomers());
 
+		long start = System.currentTimeMillis();
 		for (int i = 1; i <= properties.getCustomers(); i++) {
 			final long user = i;
 			executor.execute(() -> {
-				Response response = seckillService.aopLockStart(itemId, user);
-				LOGGER.info("user {}: {}", user, response.getMessage());
+				try {
+					latch.await();
+
+					Response response = seckillService.aopLockStart(itemId, user);
+					LOGGER.info("user {}: {}", user, response.getMessage());
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} finally {
+					wait.countDown();
+				}
 			});
+			latch.countDown();
 		}
 
-		return Response.ok(waitForResult(itemId));
+		return Response.ok(waitForResult(itemId, start, wait));
 	}
 }

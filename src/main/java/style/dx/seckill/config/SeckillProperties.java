@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 public class SeckillProperties {
 	private String html;
 	private int customers;
-	private int waittime = 20;
 
 	public SeckillProperties() {
 	}
@@ -27,13 +26,5 @@ public class SeckillProperties {
 
 	public void setCustomers(int customers) {
 		this.customers = customers;
-	}
-
-	public int getWaittime() {
-		return waittime;
-	}
-
-	public void setWaittime(int waittime) {
-		this.waittime = waittime;
 	}
 }
