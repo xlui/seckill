@@ -14,7 +14,9 @@ import java.util.concurrent.locks.ReentrantLock;
 // The smaller order will be invoked first.
 @Order(1)
 public class ServiceLockResolver {
-	private static final ReentrantLock lock = new ReentrantLock(true);    // Fair Reentrant Lock
+	// Fair Reentrant Lock
+	// This lock is singleton, because this class is singleton, this is guaranteed by spring.
+	private static final ReentrantLock lock = new ReentrantLock(true);
 
 	@Pointcut("@annotation(style.dx.seckill.aop.ServiceLock)")
 	public void aspect() {

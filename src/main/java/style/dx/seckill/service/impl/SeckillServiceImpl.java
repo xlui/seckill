@@ -89,8 +89,9 @@ public class SeckillServiceImpl implements SeckillService {
 	}
 
 	@Override
+	@Transactional
 	public Response dbPessimisticLockStart(long itemId, long userId) {
-		return null;
+		return doSeckill(itemId, userId, itemRepository.findCountByItemIdForUpdate(itemId));
 	}
 
 	@Override
