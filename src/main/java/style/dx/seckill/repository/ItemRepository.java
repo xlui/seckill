@@ -21,6 +21,10 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 	long findCountByItemIdForUpdate(@Param("id") long itemId);
 
 	@Modifying
+	@Query("UPDATE Item i SET i.count=i.count-1 WHERE i.itemId=:id AND i.count > 0")
+	int updateCountWhileUpperThan0(@Param("id") long itemId);
+
+	@Modifying
 	@Query("UPDATE Item i SET i.count=300 WHERE i.itemId=:itemId")
 	void resetItemByItemId(@Param("itemId") long itemId);
 

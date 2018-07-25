@@ -95,8 +95,15 @@ public class SeckillServiceImpl implements SeckillService {
 	}
 
 	@Override
+	@Transactional
 	public Response dbPessimisticLock2Start(long itemId, long userId) {
-		return null;
+		int result = itemRepository.updateCountWhileUpperThan0(itemId);
+		if (result > 0) {
+			SeckillSuccess succ = new SeckillSuccess(itemId, userId, -1, new Timestamp(new Date().getTime()));
+			seckillSuccessRepository.save(succ);
+			return Response.ok(StateEnum.SUCCESS);
+		}
+		return Response.of(HttpStatus.ACCEPTED.value(), StateEnum.END);
 	}
 
 	@Override

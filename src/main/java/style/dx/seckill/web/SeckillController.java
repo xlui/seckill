@@ -174,4 +174,31 @@ public class SeckillController {
 
 		return Response.ok(waitForResult(itemId, start, wait));
 	}
+
+	@RequestMapping(value = "/v5", method = RequestMethod.GET)
+	public Response v5(long itemId) {
+		seckillService.reset(itemId);
+		CountDownLatch latch = new CountDownLatch(properties.getCustomers());
+		CountDownLatch wait = new CountDownLatch(properties.getCustomers());
+
+		long start = System.currentTimeMillis();
+		for (int i = 1; i <= properties.getCustomers(); i++) {
+			final long user = i;
+			executor.execute(() -> {
+				try {
+					latch.await();
+
+					Response response = seckillService.dbPessimisticLock2Start(itemId, user);
+					LOGGER.info("user {}: {}", user, response.getMessage());
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} finally {
+					wait.countDown();
+				}
+			});
+			latch.countDown();
+		}
+
+		return Response.ok(waitForResult(itemId, start, wait));
+	}
 }
