@@ -31,4 +31,8 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 	@Modifying
 	@Query("UPDATE Item i SET i.count=i.count-1 WHERE i.itemId=:itemId")
 	void seckill(@Param("itemId") long itemId);
+
+	@Modifying
+	@Query("UPDATE Item i SET i.count=i.count-1, i.version=i.version+1 WHERE i.itemId=:id AND i.version=:v")
+	int seckillWithVersion(@Param("id") long itemId, @Param("v") int version);
 }

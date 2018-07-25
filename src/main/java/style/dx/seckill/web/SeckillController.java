@@ -37,7 +37,7 @@ public class SeckillController {
 		this.properties = properties;
 	}
 
-	private String waitForResult(long itemId, long start, CountDownLatch wait) {
+	private String waitForResult(String type, long itemId, long start, CountDownLatch wait) {
 		try {
 			wait.await();
 		} catch (InterruptedException e) {
@@ -48,6 +48,7 @@ public class SeckillController {
 		String cost = "cost about: " + (System.currentTimeMillis() - start) / 1000 + "s.";
 		long count = seckillService.successCount(itemId);
 		ret = "total seckill " + count + " items.";
+		LOGGER.info("Seckill Type: [" + type + "].");
 		LOGGER.info(ret);
 		LOGGER.info(cost);
 		return ret;
@@ -80,7 +81,7 @@ public class SeckillController {
 			latch.countDown();
 		}
 
-		return Response.ok(waitForResult(itemId, start, wait));
+		return Response.ok(waitForResult("No Lock And No Synchronization", itemId, start, wait));
 	}
 
 	/**
@@ -115,7 +116,7 @@ public class SeckillController {
 			latch.countDown();
 		}
 
-		return Response.ok(waitForResult(itemId, start, wait));
+		return Response.ok(waitForResult("Reentrant Lock", itemId, start, wait));
 	}
 
 	/**
@@ -145,7 +146,7 @@ public class SeckillController {
 			latch.countDown();
 		}
 
-		return Response.ok(waitForResult(itemId, start, wait));
+		return Response.ok(waitForResult("AOP Reentrant Lock", itemId, start, wait));
 	}
 
 	@RequestMapping(value = "/v4", method = RequestMethod.GET)
@@ -172,7 +173,7 @@ public class SeckillController {
 			latch.countDown();
 		}
 
-		return Response.ok(waitForResult(itemId, start, wait));
+		return Response.ok(waitForResult("Database Pessimistic Lock(SELECT ... FOR UPDATE)", itemId, start, wait));
 	}
 
 	@RequestMapping(value = "/v5", method = RequestMethod.GET)
@@ -199,6 +200,33 @@ public class SeckillController {
 			latch.countDown();
 		}
 
-		return Response.ok(waitForResult(itemId, start, wait));
+		return Response.ok(waitForResult("Database Pessimistic Lock Version 2(Do seckill and check count at the same time)", itemId, start, wait));
+	}
+
+	@RequestMapping(value = "/v6", method = RequestMethod.GET)
+	public Response v6(long itemId) {
+		seckillService.reset(itemId);
+		CountDownLatch latch = new CountDownLatch(properties.getCustomers());
+		CountDownLatch wait = new CountDownLatch(properties.getCustomers());
+
+		long start = System.currentTimeMillis();
+		for (int i = 1; i <= properties.getCustomers(); i++) {
+			final long user = i;
+			executor.execute(() -> {
+				try {
+					latch.await();
+
+					Response response = seckillService.dbOptimisticLockStart(itemId, user);
+					LOGGER.info("user {}: {}", user, response.getMessage());
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} finally {
+					wait.countDown();
+				}
+			});
+			latch.countDown();
+		}
+
+		return Response.ok(waitForResult("Database Optimistic Lock, using @Version", itemId, start, wait));
 	}
 }

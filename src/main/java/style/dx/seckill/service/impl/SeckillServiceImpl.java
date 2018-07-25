@@ -107,7 +107,17 @@ public class SeckillServiceImpl implements SeckillService {
 	}
 
 	@Override
+	@Transactional
 	public Response dbOptimisticLockStart(long itemId, long userId) {
-		return null;
+		Item item = itemRepository.findByItemId(itemId);
+		if (item.getCount() > 0) {
+			int result = itemRepository.seckillWithVersion(itemId, item.getVersion());
+			if (result > 0) {
+				SeckillSuccess succ = new SeckillSuccess(itemId, userId, -1, new Timestamp(new Date().getTime()));
+				seckillSuccessRepository.save(succ);
+				return Response.ok(StateEnum.SUCCESS);
+			}
+		}
+		return Response.of(HttpStatus.ACCEPTED.value(), StateEnum.END);
 	}
 }
