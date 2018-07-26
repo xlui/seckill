@@ -1,7 +1,9 @@
 package style.dx.seckill.distributed.redis;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
+@Component
 @ConfigurationProperties(prefix = "redisson")
 public class RedissonProperties {
 	private String address;
@@ -13,6 +15,7 @@ public class RedissonProperties {
 	private int slaveConnectionPoolSize = 250;
 	private String[] sentinelAddress;
 	private String masterName;
+	private String[] addresses;
 
 	public String getAddress() {
 		return address;
@@ -74,8 +77,8 @@ public class RedissonProperties {
 		return sentinelAddress;
 	}
 
-	public void setSentinelAddress(String sentinelAddress) {
-		this.sentinelAddress = sentinelAddress.split(",");
+	public void setSentinelAddress(String[] sentinelAddress) {
+		this.sentinelAddress = sentinelAddress;
 	}
 
 	public String getMasterName() {
@@ -84,5 +87,13 @@ public class RedissonProperties {
 
 	public void setMasterName(String masterName) {
 		this.masterName = masterName;
+	}
+
+	public String[] getAddresses() {
+		return addresses;
+	}
+
+	public void setAddresses(String[] addresses) {
+		this.addresses = addresses;
 	}
 }

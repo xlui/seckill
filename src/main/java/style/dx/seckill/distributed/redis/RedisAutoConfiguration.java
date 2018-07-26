@@ -8,13 +8,11 @@ import org.redisson.config.SingleServerConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ConditionalOnClass(Config.class)
-@EnableConfigurationProperties(RedissonProperties.class)
 public class RedisAutoConfiguration {
 	private final RedissonProperties redissonProperties;
 
@@ -23,12 +21,22 @@ public class RedisAutoConfiguration {
 		this.redissonProperties = redissonProperties;
 	}
 
+	@Bean
+	@ConditionalOnProperty(name = "redisson.addresses")
+	public RedissonClient clusterRedissionClient() {
+		Config config = new Config();
+		config.useClusterServers()
+				.setScanInterval(2_000)
+				.addNodeAddress(redissonProperties.getAddresses());
+		return Redisson.create(config);
+	}
+
 	/**
 	 * Single Server Auto Create Bean
 	 */
 	@Bean
 	@ConditionalOnProperty(name = "redisson.address")
-	public RedissonClient redissonClient() {
+	public RedissonClient singleRedissonClient() {
 		Config config = new Config();
 		SingleServerConfig singleServerConfig = config.useSingleServer()
 				.setAddress(redissonProperties.getAddress())
