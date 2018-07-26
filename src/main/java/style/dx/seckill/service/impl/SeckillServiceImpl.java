@@ -57,7 +57,7 @@ public class SeckillServiceImpl implements SeckillService {
 	private Response doSeckill(long itemId, long userId, long count) {
 		if (count > 0) {
 			itemRepository.seckill(itemId);
-			SeckillSuccess succ = new SeckillSuccess(itemId, userId, count, new Timestamp(new Date().getTime()));
+			SeckillSuccess succ = new SeckillSuccess(itemId, userId, count - 1, new Timestamp(new Date().getTime()));
 			seckillSuccessRepository.save(succ);
 			return Response.ok(StateEnum.SUCCESS);
 		}

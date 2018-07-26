@@ -1,6 +1,7 @@
 package style.dx.seckill.entity.resp;
 
 public enum StateEnum {
+	MUCH(2, "too many people, wait a moment"),
 	SUCCESS(1, "successfully seckill!!!"),
 	END(0, "seckill end!");
 

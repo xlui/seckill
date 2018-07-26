@@ -58,7 +58,7 @@ public class SeckillController {
 	 * Version 1: no lock and no synchronization
 	 */
 	@RequestMapping(value = "/v1", method = RequestMethod.GET)
-	public Response startV1(long itemId) {
+	public Response v1(long itemId) {
 		seckillService.reset(itemId);
 		CountDownLatch latch = new CountDownLatch(properties.getCustomers());
 		CountDownLatch wait = new CountDownLatch(properties.getCustomers());
@@ -88,7 +88,7 @@ public class SeckillController {
 	 * Version 2: Reentrant Lock
 	 */
 	@RequestMapping(value = "/v2", method = RequestMethod.GET)
-	public Response startV2(long itemId) {
+	public Response v2(long itemId) {
 		seckillService.reset(itemId);
 		CountDownLatch latch = new CountDownLatch(properties.getCustomers());
 		CountDownLatch wait = new CountDownLatch(properties.getCustomers());
@@ -123,7 +123,7 @@ public class SeckillController {
 	 * Version 3: AOP Reentrant Lock
 	 */
 	@RequestMapping(value = "/v3", method = RequestMethod.GET)
-	public Response startV3(long itemId) {
+	public Response v3(long itemId) {
 		seckillService.reset(itemId);
 		CountDownLatch latch = new CountDownLatch(properties.getCustomers());
 		CountDownLatch wait = new CountDownLatch(properties.getCustomers());
