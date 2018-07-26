@@ -78,7 +78,12 @@ public class SeckillServiceImpl implements SeckillService {
 		// at the same time another thread obtain the lock, and get the count
 		// from database, it may see the dirty data, this is called <b>dirty-read.</b>
 		// the solution is to `float up` the lock, to the outside of the transaction.
-		return doSeckill(itemId, userId, itemRepository.findCountByItemId(itemId));
+		lock.lock();
+		try {
+			return doSeckill(itemId, userId, itemRepository.findCountByItemId(itemId));
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	@Override

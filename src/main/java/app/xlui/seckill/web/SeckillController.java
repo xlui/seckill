@@ -3,6 +3,7 @@ package app.xlui.seckill.web;
 import app.xlui.seckill.config.SeckillProperties;
 import app.xlui.seckill.entity.resp.Response;
 import app.xlui.seckill.service.SeckillService;
+import app.xlui.seckill.web.util.ControllerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,29 +60,15 @@ public class SeckillController {
 	 */
 	@RequestMapping(value = "/v1", method = RequestMethod.GET)
 	public Response v1(long itemId) {
-		seckillService.reset(itemId);
-		CountDownLatch latch = new CountDownLatch(properties.getCustomers());
-		CountDownLatch wait = new CountDownLatch(properties.getCustomers());
-
-		long start = System.currentTimeMillis();
-		for (int i = 1; i <= properties.getCustomers(); i++) {
-			final long user = i;
-			executor.execute(() -> {
-				try {
-					latch.await();
-
-					Response response = seckillService.normalStart(itemId, user);
-					LOGGER.info("user {}: {}", user, response.getMessage());
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				} finally {
-					wait.countDown();
-				}
-			});
-			latch.countDown();
-		}
-
-		return Response.ok(waitForResult("No Lock And No Synchronization", itemId, start, wait));
+		return ControllerUtils.mock(
+				"No Lock And No Synchronization",
+				itemId,
+				LOGGER,
+				executor,
+				seckillService,
+				properties,
+				(i) -> seckillService.normalStart(itemId, i)
+		);
 	}
 
 	/**
@@ -89,34 +76,15 @@ public class SeckillController {
 	 */
 	@RequestMapping(value = "/v2", method = RequestMethod.GET)
 	public Response v2(long itemId) {
-		seckillService.reset(itemId);
-		CountDownLatch latch = new CountDownLatch(properties.getCustomers());
-		CountDownLatch wait = new CountDownLatch(properties.getCustomers());
-
-		long start = System.currentTimeMillis();
-		for (int i = 1; i <= properties.getCustomers(); i++) {
-			final long user = i;
-			executor.execute(() -> {
-				try {
-					latch.await();
-
-					lock.lock();
-					try {
-						Response response = seckillService.lockStart(itemId, user);
-						LOGGER.info("user {}: {}", user, response.getMessage());
-					} finally {
-						lock.unlock();
-					}
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				} finally {
-					wait.countDown();
-				}
-			});
-			latch.countDown();
-		}
-
-		return Response.ok(waitForResult("Reentrant Lock", itemId, start, wait));
+		return ControllerUtils.mock(
+				"Reentrant Lock",
+				itemId,
+				LOGGER,
+				executor,
+				seckillService,
+				properties,
+				(i) -> seckillService.lockStart(itemId, i)
+		);
 	}
 
 	/**
@@ -124,109 +92,53 @@ public class SeckillController {
 	 */
 	@RequestMapping(value = "/v3", method = RequestMethod.GET)
 	public Response v3(long itemId) {
-		seckillService.reset(itemId);
-		CountDownLatch latch = new CountDownLatch(properties.getCustomers());
-		CountDownLatch wait = new CountDownLatch(properties.getCustomers());
-
-		long start = System.currentTimeMillis();
-		for (int i = 1; i <= properties.getCustomers(); i++) {
-			final long user = i;
-			executor.execute(() -> {
-				try {
-					latch.await();
-
-					Response response = seckillService.aopLockStart(itemId, user);
-					LOGGER.info("user {}: {}", user, response.getMessage());
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				} finally {
-					wait.countDown();
-				}
-			});
-			latch.countDown();
-		}
-
-		return Response.ok(waitForResult("AOP Reentrant Lock", itemId, start, wait));
+		return ControllerUtils.mock(
+				"AOP Reentrant Lock",
+				itemId,
+				LOGGER,
+				executor,
+				seckillService,
+				properties,
+				(i) -> seckillService.aopLockStart(itemId, i)
+		);
 	}
 
 	@RequestMapping(value = "/v4", method = RequestMethod.GET)
 	public Response v4(long itemId) {
-		seckillService.reset(itemId);
-		CountDownLatch latch = new CountDownLatch(properties.getCustomers());
-		CountDownLatch wait = new CountDownLatch(properties.getCustomers());
-
-		long start = System.currentTimeMillis();
-		for (int i = 1; i <= properties.getCustomers(); i++) {
-			final long user = i;
-			executor.execute(() -> {
-				try {
-					latch.await();
-
-					Response response = seckillService.dbPessimisticLockStart(itemId, user);
-					LOGGER.info("user {}: {}", user, response.getMessage());
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				} finally {
-					wait.countDown();
-				}
-			});
-			latch.countDown();
-		}
-
-		return Response.ok(waitForResult("Database Pessimistic Lock(SELECT ... FOR UPDATE)", itemId, start, wait));
+		return ControllerUtils.mock(
+				"Database Pessimistic Lock(SELECT ... FOR UPDATE)",
+				itemId,
+				LOGGER,
+				executor,
+				seckillService,
+				properties,
+				(i) -> seckillService.dbPessimisticLockStart(itemId, i)
+		);
 	}
 
 	@RequestMapping(value = "/v5", method = RequestMethod.GET)
 	public Response v5(long itemId) {
-		seckillService.reset(itemId);
-		CountDownLatch latch = new CountDownLatch(properties.getCustomers());
-		CountDownLatch wait = new CountDownLatch(properties.getCustomers());
-
-		long start = System.currentTimeMillis();
-		for (int i = 1; i <= properties.getCustomers(); i++) {
-			final long user = i;
-			executor.execute(() -> {
-				try {
-					latch.await();
-
-					Response response = seckillService.dbPessimisticLock2Start(itemId, user);
-					LOGGER.info("user {}: {}", user, response.getMessage());
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				} finally {
-					wait.countDown();
-				}
-			});
-			latch.countDown();
-		}
-
-		return Response.ok(waitForResult("Database Pessimistic Lock Version 2(Do seckill and check count at the same time)", itemId, start, wait));
+		return ControllerUtils.mock(
+				"Database Pessimistic Lock Version 2(Do seckill and check count at the same time)",
+				itemId,
+				LOGGER,
+				executor,
+				seckillService,
+				properties,
+				(i) -> seckillService.dbPessimisticLock2Start(itemId, i)
+		);
 	}
 
 	@RequestMapping(value = "/v6", method = RequestMethod.GET)
 	public Response v6(long itemId) {
-		seckillService.reset(itemId);
-		CountDownLatch latch = new CountDownLatch(properties.getCustomers());
-		CountDownLatch wait = new CountDownLatch(properties.getCustomers());
-
-		long start = System.currentTimeMillis();
-		for (int i = 1; i <= properties.getCustomers(); i++) {
-			final long user = i;
-			executor.execute(() -> {
-				try {
-					latch.await();
-
-					Response response = seckillService.dbOptimisticLockStart(itemId, user);
-					LOGGER.info("user {}: {}", user, response.getMessage());
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				} finally {
-					wait.countDown();
-				}
-			});
-			latch.countDown();
-		}
-
-		return Response.ok(waitForResult("Database Optimistic Lock, using @Version", itemId, start, wait));
+		return ControllerUtils.mock(
+				"Database Optimistic Lock, using @Version",
+				itemId,
+				LOGGER,
+				executor,
+				seckillService,
+				properties,
+				(i) -> seckillService.dbPessimisticLock2Start(itemId, i)
+		);
 	}
 }
