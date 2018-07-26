@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>style.dx</groupId>
+    <groupId>app.xlui</groupId>
     <artifactId>seckill</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -25,6 +25,7 @@
         <guava.version>25.1-jre</guava.version>
         <redisson.version>3.7.5</redisson.version>
         <commons.version>3.7</commons.version>
+        <curator.version>4.0.1</curator.version>
     </properties>
 
     <dependencies>
@@ -99,13 +100,18 @@
             <artifactId>redisson</artifactId>
             <version>${redisson.version}</version>
         </dependency>
+        <!-- Zookeeper Distributed Lock -->
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-recipes</artifactId>
+            <version>${curator.version}</version>
+        </dependency>
         <!-- Apache Commons API Support -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${commons.version}</version>
         </dependency>
-
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
