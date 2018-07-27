@@ -2,11 +2,11 @@ package app.xlui.seckill.service.impl;
 
 import app.xlui.seckill.aop.ServiceLock;
 import app.xlui.seckill.entity.Item;
-import app.xlui.seckill.entity.SeckillSuccess;
+import app.xlui.seckill.entity.SeckillLog;
 import app.xlui.seckill.entity.resp.Response;
 import app.xlui.seckill.entity.resp.StateEnum;
 import app.xlui.seckill.repository.ItemRepository;
-import app.xlui.seckill.repository.SeckillSuccessRepository;
+import app.xlui.seckill.repository.SeckillLogRepository;
 import app.xlui.seckill.service.SeckillService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,12 +24,12 @@ public class SeckillServiceImpl implements SeckillService {
 	// service is singleton by default, so in concurrent environment lock is also only one.
 	private final Lock lock = new ReentrantLock(true);
 	private final ItemRepository itemRepository;
-	private final SeckillSuccessRepository seckillSuccessRepository;
+	private final SeckillLogRepository seckillLogRepository;
 
 	@Autowired
-	public SeckillServiceImpl(ItemRepository itemRepository, SeckillSuccessRepository seckillSuccessRepository) {
+	public SeckillServiceImpl(ItemRepository itemRepository, SeckillLogRepository seckillLogRepository) {
 		this.itemRepository = itemRepository;
-		this.seckillSuccessRepository = seckillSuccessRepository;
+		this.seckillLogRepository = seckillLogRepository;
 	}
 
 	@Override
@@ -44,21 +44,21 @@ public class SeckillServiceImpl implements SeckillService {
 
 	@Override
 	public long successCount(long itemId) {
-		return seckillSuccessRepository.countByItemId(itemId);
+		return seckillLogRepository.countByItemId(itemId);
 	}
 
 	@Override
 	@Transactional
 	public void reset(long itemId) {
-		seckillSuccessRepository.deleteByItemId(itemId);
+		seckillLogRepository.deleteByItemId(itemId);
 		itemRepository.resetItemByItemId(itemId);
 	}
 
 	private Response doSeckill(long itemId, long userId, long count) {
 		if (count > 0) {
 			itemRepository.seckill(itemId);
-			SeckillSuccess succ = new SeckillSuccess(itemId, userId, count - 1, new Timestamp(new Date().getTime()));
-			seckillSuccessRepository.save(succ);
+			SeckillLog seckillLog = new SeckillLog(itemId, userId, count - 1, new Timestamp(new Date().getTime()));
+			seckillLogRepository.save(seckillLog);
 			return Response.ok(StateEnum.SUCCESS);
 		}
 		return Response.of(HttpStatus.ACCEPTED.value(), StateEnum.END);
@@ -104,8 +104,8 @@ public class SeckillServiceImpl implements SeckillService {
 	public Response dbPessimisticLock2Start(long itemId, long userId) {
 		int result = itemRepository.updateCountWhileUpperThan0(itemId);
 		if (result > 0) {
-			SeckillSuccess succ = new SeckillSuccess(itemId, userId, -1, new Timestamp(new Date().getTime()));
-			seckillSuccessRepository.save(succ);
+			SeckillLog seckillLog = new SeckillLog(itemId, userId, -1, new Timestamp(new Date().getTime()));
+			seckillLogRepository.save(seckillLog);
 			return Response.ok(StateEnum.SUCCESS);
 		}
 		return Response.of(HttpStatus.ACCEPTED.value(), StateEnum.END);
@@ -118,8 +118,8 @@ public class SeckillServiceImpl implements SeckillService {
 		if (item.getCount() > 0) {
 			int result = itemRepository.seckillWithVersion(itemId, item.getVersion());
 			if (result > 0) {
-				SeckillSuccess succ = new SeckillSuccess(itemId, userId, -1, new Timestamp(new Date().getTime()));
-				seckillSuccessRepository.save(succ);
+				SeckillLog seckillLog = new SeckillLog(itemId, userId, -1, new Timestamp(new Date().getTime()));
+				seckillLogRepository.save(seckillLog);
 				return Response.ok(StateEnum.SUCCESS);
 			}
 		}

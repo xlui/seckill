@@ -13,6 +13,7 @@ public class ZookeeperLock {
 	private static CuratorFramework curator;
 
 	static {
+		// Retry Policy
 		RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
 		curator = CuratorFrameworkFactory.newClient(address, retryPolicy);
 		curator.start();
@@ -26,6 +27,14 @@ public class ZookeeperLock {
 		return Singleton.mutex;
 	}
 
+	/**
+	 * Acquire a distributed lock from zookeeper, block until the lock is available
+	 * or the given time expires. Note that the same thread can call acquire reentrantly
+	 *
+	 * @param time time to wait
+	 * @param unit time unit
+	 * @return true if mutex is acquired, false if not
+	 */
 	public static boolean acquire(long time, TimeUnit unit) {
 		try {
 			return getMutex().acquire(time, unit);
@@ -35,6 +44,10 @@ public class ZookeeperLock {
 		}
 	}
 
+	/**
+	 * If current thread own the lock, release the mutex. If current thread has
+	 * multi calls to acquire, the mutex will still be held when this method returns.
+	 */
 	public static void release() {
 		try {
 			getMutex().release();

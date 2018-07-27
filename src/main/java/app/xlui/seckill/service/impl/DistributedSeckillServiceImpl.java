@@ -2,11 +2,11 @@ package app.xlui.seckill.service.impl;
 
 import app.xlui.seckill.distributed.redis.RedisLock;
 import app.xlui.seckill.distributed.zookeeper.ZookeeperLock;
-import app.xlui.seckill.entity.SeckillSuccess;
+import app.xlui.seckill.entity.SeckillLog;
 import app.xlui.seckill.entity.resp.Response;
 import app.xlui.seckill.entity.resp.StateEnum;
 import app.xlui.seckill.repository.ItemRepository;
-import app.xlui.seckill.repository.SeckillSuccessRepository;
+import app.xlui.seckill.repository.SeckillLogRepository;
 import app.xlui.seckill.service.DistributedSeckillService;
 import org.redisson.api.RLock;
 import org.slf4j.Logger;
@@ -24,19 +24,19 @@ import java.util.concurrent.TimeUnit;
 public class DistributedSeckillServiceImpl implements DistributedSeckillService {
 	private static final Logger logger = LoggerFactory.getLogger(DistributedSeckillServiceImpl.class);
 	private final ItemRepository itemRepository;
-	private final SeckillSuccessRepository seckillSuccessRepository;
+	private final SeckillLogRepository seckillLogRepository;
 
 	@Autowired
-	public DistributedSeckillServiceImpl(ItemRepository itemRepository, SeckillSuccessRepository seckillSuccessRepository) {
+	public DistributedSeckillServiceImpl(ItemRepository itemRepository, SeckillLogRepository seckillLogRepository) {
 		this.itemRepository = itemRepository;
-		this.seckillSuccessRepository = seckillSuccessRepository;
+		this.seckillLogRepository = seckillLogRepository;
 	}
 
 	private Response seckill(long itemId, long userId, long count) {
 		if (count > 0) {
 			itemRepository.seckill(itemId);
-			SeckillSuccess succ = new SeckillSuccess(itemId, userId, count - 1, new Timestamp(new Date().getTime()));
-			seckillSuccessRepository.save(succ);
+			SeckillLog succ = new SeckillLog(itemId, userId, count - 1, new Timestamp(new Date().getTime()));
+			seckillLogRepository.save(succ);
 			return Response.ok(StateEnum.SUCCESS);
 		} else {
 			return Response.of(HttpStatus.ACCEPTED.value(), StateEnum.END);

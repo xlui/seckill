@@ -5,8 +5,8 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "seckill_success")
-public class SeckillSuccess implements Serializable {
+@Table(name = "logs")
+public class SeckillLog implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue
@@ -17,10 +17,15 @@ public class SeckillSuccess implements Serializable {
 	private long state;
 	private Timestamp createTime;
 
-	public SeckillSuccess() {
+	public SeckillLog() {
 	}
 
-	public SeckillSuccess(long itemId, long userId, long state, Timestamp createTime) {
+	public SeckillLog(long itemId, long userId) {
+		this.itemId = itemId;
+		this.userId = userId;
+	}
+
+	public SeckillLog(long itemId, long userId, long state, Timestamp createTime) {
 		this.itemId = itemId;
 		this.userId = userId;
 		this.state = state;

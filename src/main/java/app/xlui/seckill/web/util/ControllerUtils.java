@@ -33,6 +33,10 @@ public class ControllerUtils {
 			latch.countDown();
 		}
 
+		return summary(type, itemId, start, wait, logger, seckillService);
+	}
+
+	public static Response summary(String type, long itemId, long start, CountDownLatch wait, Logger logger, SeckillService seckillService) {
 		try {
 			wait.await();
 		} catch (InterruptedException e) {

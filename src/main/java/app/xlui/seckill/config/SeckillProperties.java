@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "seckill")
 public class SeckillProperties {
 	private String html;
+	private int count;
 	private int customers;
 
 	public SeckillProperties() {
@@ -18,6 +19,14 @@ public class SeckillProperties {
 
 	public void setHtml(String html) {
 		this.html = html;
+	}
+
+	public int getCount() {
+		return count;
+	}
+
+	public void setCount(int count) {
+		this.count = count;
 	}
 
 	public int getCustomers() {
