@@ -3,10 +3,11 @@ jdk:
   - openjdk8
 services:
   - mysql
-  - redis-server
 before_install:
     - mysql -u root -e 'DROP DATABASE IF EXISTS test;'
     - mysql -u root -e 'CREATE DATABASE test CHARACTER SET utf8;'
     - mysql -u root -e "GRANT ALL PRIVILEGES ON test.* TO 'test'@'localhost' IDENTIFIED BY 'test';"
 install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true
+before_script:
+    - sudo redis-server /etc/redis/redis.conf --requirepass "myredispassword"
 script: mvn test
