@@ -3,7 +3,6 @@ jdk:
   - openjdk8
 services:
   - mysql
-  - redis-server
 before_install:
     - mysql -u root -e 'DROP DATABASE IF EXISTS test;'
     - mysql -u root -e 'CREATE DATABASE test CHARACTER SET utf8;'
