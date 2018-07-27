@@ -1,4 +1,4 @@
-package app.xlui.seckill.queue;
+package app.xlui.seckill.queue.builtin;
 
 import app.xlui.seckill.config.SeckillProperties;
 import app.xlui.seckill.entity.SeckillLog;

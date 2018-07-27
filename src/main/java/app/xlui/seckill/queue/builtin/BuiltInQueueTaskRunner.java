@@ -1,7 +1,6 @@
 package app.xlui.seckill.queue.builtin;
 
 import app.xlui.seckill.entity.SeckillLog;
-import app.xlui.seckill.queue.BuiltInQueue;
 import app.xlui.seckill.service.SeckillService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -26,6 +26,7 @@
         <redisson.version>3.7.5</redisson.version>
         <commons.version>3.7</commons.version>
         <curator.version>4.0.1</curator.version>
+        <disruptor.version>3.4.2</disruptor.version>
     </properties>
 
     <dependencies>
@@ -77,6 +78,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>${disruptor.version}</version>
         </dependency>
         <!-- Kafka Message Queue -->
         <dependency>

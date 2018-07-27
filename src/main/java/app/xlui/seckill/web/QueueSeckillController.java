@@ -4,7 +4,9 @@ import app.xlui.seckill.config.SeckillProperties;
 import app.xlui.seckill.entity.SeckillLog;
 import app.xlui.seckill.entity.resp.Response;
 import app.xlui.seckill.entity.resp.StateEnum;
-import app.xlui.seckill.queue.BuiltInQueue;
+import app.xlui.seckill.queue.builtin.BuiltInQueue;
+import app.xlui.seckill.queue.disruptor.DisruptorQueue;
+import app.xlui.seckill.queue.disruptor.SeckillEvent;
 import app.xlui.seckill.service.SeckillService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,11 +38,6 @@ public class QueueSeckillController {
 	@RequestMapping(value = "/v1", method = RequestMethod.GET)
 	public Response v1(long itemId) {
 		seckillService.reset(itemId);
-		try {
-			Thread.sleep(5 * 1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 		CountDownLatch latch = new CountDownLatch(properties.getCustomers());
 		CountDownLatch wait = new CountDownLatch(properties.getCustomers());
 		long start = System.currentTimeMillis();
@@ -66,5 +63,32 @@ public class QueueSeckillController {
 		}
 
 		return Response.ok("Seckill Type: [Built in Blocking Queue]. Total cost " + (System.currentTimeMillis() - start) / 1000 + "s.");
+	}
+
+	@RequestMapping(value = "/v2", method = RequestMethod.GET)
+	public Response v2(long itemId) {
+		seckillService.reset(itemId);
+		CountDownLatch latch = new CountDownLatch(properties.getCustomers());
+		CountDownLatch wait = new CountDownLatch(properties.getCustomers());
+		long start = System.currentTimeMillis();
+
+		for (int i = 1; i <= properties.getCustomers(); i++) {
+			final long user = i;
+			executorService.execute(() -> {
+				try {
+					latch.await();
+
+					SeckillEvent seckillEvent = new SeckillEvent(itemId, user);
+					DisruptorQueue.producer(seckillEvent);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} finally {
+					wait.countDown();
+				}
+			});
+			latch.countDown();
+		}
+
+		return Response.ok("Seckill Type: [Disruptor Queue]. Total cost " + (System.currentTimeMillis() - start) / 1000 + "s.");
 	}
 }
