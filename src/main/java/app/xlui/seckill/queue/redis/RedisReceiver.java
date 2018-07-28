@@ -11,12 +11,10 @@ import org.springframework.stereotype.Service;
 public class RedisReceiver {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RedisReceiver.class);
 	private final SeckillService seckillService;
-	private final RedisUtils redisUtils;
 
 	@Autowired
-	public RedisReceiver(SeckillService seckillService, RedisUtils redisUtils) {
+	public RedisReceiver(SeckillService seckillService) {
 		this.seckillService = seckillService;
-		this.redisUtils = redisUtils;
 	}
 
 	/**

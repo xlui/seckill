@@ -38,23 +38,6 @@ public class SeckillController {
 		this.properties = properties;
 	}
 
-	private String waitForResult(String type, long itemId, long start, CountDownLatch wait) {
-		try {
-			wait.await();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		String ret;
-		String cost = "cost about: " + (System.currentTimeMillis() - start) / 1000 + "s.";
-		long count = seckillService.successCount(itemId);
-		ret = "total seckill " + count + " items.";
-		LOGGER.info("Seckill Type: [" + type + "].");
-		LOGGER.info(ret);
-		LOGGER.info(cost);
-		return ret;
-	}
-
 	/**
 	 * Version 1: no lock and no synchronization
 	 */
@@ -103,6 +86,9 @@ public class SeckillController {
 		);
 	}
 
+	/**
+	 * Version 4: Database Pessimistic Lock (select ... from update)
+	 */
 	@RequestMapping(value = "/v4", method = RequestMethod.GET)
 	public Response v4(long itemId) {
 		return ControllerUtils.mock(
@@ -116,6 +102,9 @@ public class SeckillController {
 		);
 	}
 
+	/**
+	 * Version 5: Database Pessimistic Lock (do seckill and check count in one sql statement)
+	 */
 	@RequestMapping(value = "/v5", method = RequestMethod.GET)
 	public Response v5(long itemId) {
 		return ControllerUtils.mock(
