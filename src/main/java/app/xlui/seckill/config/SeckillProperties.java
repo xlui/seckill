@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "seckill")
 public class SeckillProperties {
-	private String html;
 	private int count;
 	private int customers;
 	private Zookeeper zookeeper;
@@ -24,14 +23,6 @@ public class SeckillProperties {
 		public void setAddress(String address) {
 			this.address = address;
 		}
-	}
-
-	public String getHtml() {
-		return html;
-	}
-
-	public void setHtml(String html) {
-		this.html = html;
 	}
 
 	public int getCount() {

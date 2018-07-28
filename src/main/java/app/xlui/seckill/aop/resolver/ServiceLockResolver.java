@@ -9,9 +9,13 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * The smaller order will be invoked first.
+ * <code>@Order</code> annotation indicate that, if <code>@ServiceLock</code> was placed
+ * with <code>@Transactional</code>, {@link ServiceLockResolver} will be invoked first
+  */
 @Component
 @Aspect
-// The smaller order will be invoked first.
 @Order(1)
 public class ServiceLockResolver {
 	// Fair Reentrant Lock
