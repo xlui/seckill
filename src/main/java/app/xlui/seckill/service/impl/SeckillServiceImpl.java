@@ -66,13 +66,13 @@ public class SeckillServiceImpl implements SeckillService {
 
 	@Override
 	@Transactional
-	public Response normalStart(long itemId, long userId) {
+	public Response normal(long itemId, long userId) {
 		return doSeckill(itemId, userId, itemRepository.findCountByItemId(itemId));
 	}
 
 	@Override
 	@Transactional
-	public Response lockStart(long itemId, long userId) {
+	public Response reentrantLock(long itemId, long userId) {
 		// if we add `lock` here, there may be one situation:
 		// lock is released, while the transaction have not been committed
 		// at the same time another thread obtain the lock, and get the count
@@ -89,19 +89,19 @@ public class SeckillServiceImpl implements SeckillService {
 	@Override
 	@ServiceLock
 	@Transactional
-	public Response aopLockStart(long itemId, long userId) {
+	public Response aopLock(long itemId, long userId) {
 		return doSeckill(itemId, userId, itemRepository.findCountByItemId(itemId));
 	}
 
 	@Override
 	@Transactional
-	public Response dbPessimisticLockStart(long itemId, long userId) {
+	public Response dbPessimisticLock(long itemId, long userId) {
 		return doSeckill(itemId, userId, itemRepository.findCountByItemIdForUpdate(itemId));
 	}
 
 	@Override
 	@Transactional
-	public Response dbPessimisticLock2Start(long itemId, long userId) {
+	public Response dbPessimisticLock2(long itemId, long userId) {
 		int result = itemRepository.updateCountWhileUpperThan0(itemId);
 		if (result > 0) {
 			SeckillLog seckillLog = new SeckillLog(itemId, userId, -1, new Timestamp(new Date().getTime()));
@@ -113,7 +113,7 @@ public class SeckillServiceImpl implements SeckillService {
 
 	@Override
 	@Transactional
-	public Response dbOptimisticLockStart(long itemId, long userId) {
+	public Response dbOptimisticLock(long itemId, long userId) {
 		Item item = itemRepository.findByItemId(itemId);
 		if (item.getCount() > 0) {
 			int result = itemRepository.seckillWithVersion(itemId, item.getVersion());

@@ -7,10 +7,13 @@ import org.slf4j.Logger;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Function;
+import java.util.function.Consumer;
 
+/**
+ * Common Utility Class, includes the implement of high concurrency simulation
+ */
 public class ControllerUtils {
-	public static Response mock(String type, long itemId, Logger logger, ExecutorService executorService, SeckillService seckillService, SeckillProperties properties, Function<Long, Response> function) {
+	public static Response mock(String type, long itemId, Logger logger, ExecutorService executorService, SeckillService seckillService, SeckillProperties properties, Consumer<Long> consumer) {
 		seckillService.reset(itemId);
 		CountDownLatch latch = new CountDownLatch(properties.getCustomers());
 		CountDownLatch wait = new CountDownLatch(properties.getCustomers());
@@ -22,8 +25,7 @@ public class ControllerUtils {
 				try {
 					latch.await();
 
-					Response response = function.apply(user);
-					logger.info("user {}: {}", user, response.getMessage());
+					consumer.accept(user);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				} finally {

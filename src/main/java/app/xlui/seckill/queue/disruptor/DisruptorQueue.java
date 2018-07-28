@@ -3,7 +3,7 @@ package app.xlui.seckill.queue.disruptor;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 
-import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.Executors;
 
 public class DisruptorQueue {
 	private static final int ringBufferSize = 1024;
@@ -11,8 +11,7 @@ public class DisruptorQueue {
 
 	static {
 		SeckillEventFactory factory = new SeckillEventFactory();
-		ThreadFactory threadFactory = Thread::new;
-		disruptor = new Disruptor<SeckillEvent>(factory, ringBufferSize, threadFactory);
+		disruptor = new Disruptor<SeckillEvent>(factory, ringBufferSize, Executors.newCachedThreadPool());
 		disruptor.handleEventsWith(new SeckillEventConsumer());
 		disruptor.start();
 	}

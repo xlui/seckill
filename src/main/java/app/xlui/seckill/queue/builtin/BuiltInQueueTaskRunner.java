@@ -29,7 +29,7 @@ public class BuiltInQueueTaskRunner implements ApplicationRunner {
 			if (seckillLog != null) {
 				LOGGER.info("user {}: {}",
 						seckillLog.getUserId(),
-						seckillService.normalStart(seckillLog.getItemId(), seckillLog.getUserId()).getMessage()
+						seckillService.normal(seckillLog.getItemId(), seckillLog.getUserId()).getMessage()
 				);
 			}
 		}

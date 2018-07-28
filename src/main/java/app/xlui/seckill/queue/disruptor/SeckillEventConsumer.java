@@ -14,7 +14,7 @@ public class SeckillEventConsumer implements EventHandler<SeckillEvent> {
 	public void onEvent(SeckillEvent event, long sequence, boolean endOfBatch) {
 		LOGGER.info("user {}: {}",
 				event.getUserId(),
-				seckillService.normalStart(event.getItemId(), event.getUserId()).getMessage()
+				seckillService.normal(event.getItemId(), event.getUserId()).getMessage()
 		);
 	}
 }

@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
 @RestController
 @RequestMapping("/d")
 public class DistributedSeckillController {
-	private static final Logger log = LoggerFactory.getLogger(DistributedSeckillController.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DistributedSeckillController.class);
 	private static ExecutorService executor = Executors.newCachedThreadPool();
 	private final DistributedSeckillService distributedSeckillService;
 	private final SeckillService seckillService;
@@ -36,11 +36,11 @@ public class DistributedSeckillController {
 		return ControllerUtils.mock(
 				"Redis Distributed Lock",
 				itemId,
-				log,
+				LOGGER,
 				executor,
 				seckillService,
 				properties,
-				(i) -> distributedSeckillService.redisLockStart(itemId, i)
+				(i) -> LOGGER.info("user {}: {}", i, distributedSeckillService.redisLock(itemId, i).getMessage())
 		);
 	}
 
@@ -49,11 +49,11 @@ public class DistributedSeckillController {
 		return ControllerUtils.mock(
 				"Zookeeper Distributed Lock",
 				itemId,
-				log,
+				LOGGER,
 				executor,
 				seckillService,
 				properties,
-				(i) -> distributedSeckillService.zkLockStart(itemId, i)
+				(i) -> LOGGER.info("user {}: {}", i, distributedSeckillService.zkLock(itemId, i).getMessage())
 		);
 	}
 }

@@ -67,7 +67,7 @@ public class SeckillController {
 				executor,
 				seckillService,
 				properties,
-				(i) -> seckillService.normalStart(itemId, i)
+				(i) -> LOGGER.info("user {}: {}", i, seckillService.normal(itemId, i).getMessage())
 		);
 	}
 
@@ -83,7 +83,7 @@ public class SeckillController {
 				executor,
 				seckillService,
 				properties,
-				(i) -> seckillService.lockStart(itemId, i)
+				(i) -> LOGGER.info("user {}: {}", i, seckillService.reentrantLock(itemId, i).getMessage())
 		);
 	}
 
@@ -99,7 +99,7 @@ public class SeckillController {
 				executor,
 				seckillService,
 				properties,
-				(i) -> seckillService.aopLockStart(itemId, i)
+				(i) -> LOGGER.info("user {}: {}", i, seckillService.aopLock(itemId, i).getMessage())
 		);
 	}
 
@@ -112,7 +112,7 @@ public class SeckillController {
 				executor,
 				seckillService,
 				properties,
-				(i) -> seckillService.dbPessimisticLockStart(itemId, i)
+				(i) -> LOGGER.info("user {}: {}", i, seckillService.dbPessimisticLock(itemId, i).getMessage())
 		);
 	}
 
@@ -125,7 +125,7 @@ public class SeckillController {
 				executor,
 				seckillService,
 				properties,
-				(i) -> seckillService.dbPessimisticLock2Start(itemId, i)
+				(i) -> LOGGER.info("user {}: {}", i, seckillService.dbPessimisticLock2(itemId, i).getMessage())
 		);
 	}
 
@@ -138,7 +138,7 @@ public class SeckillController {
 				executor,
 				seckillService,
 				properties,
-				(i) -> seckillService.dbPessimisticLock2Start(itemId, i)
+				(i) -> LOGGER.info("user {}: {}", i, seckillService.dbOptimisticLock(itemId, i).getMessage())
 		);
 	}
 }

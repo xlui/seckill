@@ -48,7 +48,7 @@ public class DistributedSeckillServiceImpl implements DistributedSeckillService 
 	 */
 	@Override
 	@Transactional
-	public Response redisLockStart(long itemId, long userId) {
+	public Response redisLock(long itemId, long userId) {
 		RLock rLock = RedisLock.lock(String.valueOf(itemId), 5);
 		try {
 			return seckill(itemId, userId, itemRepository.findCountByItemId(itemId));
@@ -59,7 +59,7 @@ public class DistributedSeckillServiceImpl implements DistributedSeckillService 
 
 	@Override
 	@Transactional
-	public Response zkLockStart(long itemId, long userId) {
+	public Response zkLock(long itemId, long userId) {
 		boolean acquire = false;
 		try {
 			acquire = ZookeeperLock.acquire(3, TimeUnit.SECONDS);

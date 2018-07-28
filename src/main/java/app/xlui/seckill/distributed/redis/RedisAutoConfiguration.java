@@ -22,7 +22,7 @@ public class RedisAutoConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnProperty(name = "redisson.addresses")
+	@ConditionalOnProperty(name = "seckill.redisson.addresses")
 	public RedissonClient clusterRedissionClient() {
 		Config config = new Config();
 		config.useClusterServers()
@@ -35,7 +35,7 @@ public class RedisAutoConfiguration {
 	 * Single Server Auto Create Bean
 	 */
 	@Bean
-	@ConditionalOnProperty(name = "redisson.address")
+	@ConditionalOnProperty(name = "seckill.redisson.address")
 	public RedissonClient singleRedissonClient() {
 		Config config = new Config();
 		SingleServerConfig singleServerConfig = config.useSingleServer()

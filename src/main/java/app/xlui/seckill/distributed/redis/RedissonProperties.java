@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties(prefix = "redisson")
+@ConfigurationProperties(prefix = "seckill.redisson")
 public class RedissonProperties {
 	private String address;
 	private String password;
