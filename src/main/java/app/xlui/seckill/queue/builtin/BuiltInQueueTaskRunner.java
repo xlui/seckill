@@ -22,16 +22,22 @@ public class BuiltInQueueTaskRunner implements ApplicationRunner {
 	}
 
 	@Override
-	public void run(ApplicationArguments args) throws Exception {
+	public void run(ApplicationArguments args) {
 		//noinspection InfiniteLoopStatement
-		while (true) {
-			SeckillLog seckillLog = builtInQueue.consume();
-			if (seckillLog != null) {
-				LOGGER.info("user {}: {}",
-						seckillLog.getUserId(),
-						seckillService.normal(seckillLog.getItemId(), seckillLog.getUserId()).getMessage()
-				);
+		new Thread(() -> {
+			while (true) {
+				try {
+					SeckillLog seckillLog = builtInQueue.consume();
+					if (seckillLog != null) {
+						LOGGER.info("user {}: {}",
+								seckillLog.getUserId(),
+								seckillService.normal(seckillLog.getItemId(), seckillLog.getUserId()).getMessage()
+						);
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
-		}
+		}).start();
 	}
 }
