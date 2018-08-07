@@ -21,8 +21,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 public class SeckillServiceImpl implements SeckillService {
-	// service is singleton by default, so in concurrent environment lock is also only one.
-	private final Lock lock = new ReentrantLock(true);
+	private final Lock lock = new ReentrantLock();
 	private final ItemRepository itemRepository;
 	private final SeckillLogRepository seckillLogRepository;
 
@@ -39,7 +38,7 @@ public class SeckillServiceImpl implements SeckillService {
 
 	@Override
 	public Item findById(long itemId) {
-		return itemRepository.findOne(itemId);
+		return itemRepository.findByItemId(itemId);
 	}
 
 	@Override

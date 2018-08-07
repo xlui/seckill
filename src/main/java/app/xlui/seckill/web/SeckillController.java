@@ -19,16 +19,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class SeckillController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SeckillController.class);
 	private static final Lock lock = new ReentrantLock(true);
-	//	private static ExecutorService executor = Executors.newCachedThreadPool();
-	private static ThreadPoolExecutor executor = new ThreadPoolExecutor(
-			0,
-			Integer.MAX_VALUE,
-			60L,
-			TimeUnit.SECONDS,
-			new SynchronousQueue<>(),
-			Executors.defaultThreadFactory(),
-			new ThreadPoolExecutor.AbortPolicy()
-	);
+	private static ExecutorService executor = Executors.newCachedThreadPool();
 	private final SeckillService seckillService;
 	private final SeckillProperties properties;
 
