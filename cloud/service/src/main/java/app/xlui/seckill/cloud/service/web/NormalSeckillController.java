@@ -1,5 +1,6 @@
 package app.xlui.seckill.cloud.service.web;
 
+import app.xlui.seckill.cloud.service.aop.ServiceLimit;
 import app.xlui.seckill.cloud.service.entity.Response;
 import app.xlui.seckill.cloud.service.service.SeckillService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ public class NormalSeckillController {
 	private SeckillService seckillService;
 
 	@RequestMapping("/nolock")
+	@ServiceLimit
 	public Response nolock(int item, int user) {
 		return seckillService.normal(item, user);
 	}

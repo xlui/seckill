@@ -71,6 +71,7 @@ public class SeckillServiceImpl implements SeckillService {
 	}
 
 	@Override
+	@Transactional
 	public synchronized Response syncLock(int itemId, int userId) {
 		return doSeckill(itemId, userId, itemRepository.findCountByItemId(itemId));
 	}

@@ -12,7 +12,7 @@ before_install:
     - docker pull spotify/kafka
     - docker run --name kafka -p 2181:2181 -p 9092:9092 --env ADVERTISED_HOST=127.0.0.1 --env ADVERTISED_PORT=9092 -d spotify/kafka
     - docker ps
-install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true
+install: cd origin/ && mvn install -DskipTests=true -Dmaven.javadoc.skip=true
 before_script:
     - sudo redis-server /etc/redis/redis.conf --requirepass "myredispassword"
 script: mvn test
