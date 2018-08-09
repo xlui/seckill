@@ -1,5 +1,6 @@
 package app.xlui.seckill.cloud.service.service.impl;
 
+import app.xlui.seckill.cloud.service.config.SeckillProperties;
 import app.xlui.seckill.cloud.service.distributed.redis.RedisLock;
 import app.xlui.seckill.cloud.service.distributed.zookeeper.ZookeeperLock;
 import app.xlui.seckill.cloud.service.entity.Log;
@@ -11,16 +12,14 @@ import org.redisson.api.RLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
-import static app.xlui.seckill.cloud.service.config.Const.END;
-import static app.xlui.seckill.cloud.service.config.Const.MUCH;
-import static app.xlui.seckill.cloud.service.config.Const.SUCCESS;
+import static app.xlui.seckill.cloud.service.config.Const.*;
 
 @Service
 public class DistributedSeckillServiceImpl implements DistributedSeckillService {
@@ -61,7 +60,7 @@ public class DistributedSeckillServiceImpl implements DistributedSeckillService 
     public Response zkLock(int itemId, int userId) {
         boolean acquire = false;
         try {
-            acquire = ZookeeperLock.acquire();
+            acquire = ZookeeperLock.acquire(5, TimeUnit.SECONDS);
             if (acquire) {
                 return seckill(itemId, userId, itemRepository.findCountByItemId(itemId));
             } else {

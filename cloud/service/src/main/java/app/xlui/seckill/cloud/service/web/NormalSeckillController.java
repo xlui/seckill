@@ -10,10 +10,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/normal")
 public class NormalSeckillController {
-	@Autowired
-	private SeckillService seckillService;
+	private final SeckillService seckillService;
 
-	@RequestMapping("/nolock")
+    @Autowired
+    public NormalSeckillController(SeckillService seckillService) {
+        this.seckillService = seckillService;
+    }
+
+    @RequestMapping("/nolock")
 	@ServiceLimit
 	public Response nolock(int item, int user) {
 		return seckillService.normal(item, user);

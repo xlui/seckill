@@ -33,7 +33,7 @@ public class RedisAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(name = "seckill.redisson.addres")
+    @ConditionalOnProperty(name = "seckill.redisson.address")
     public RedissonClient singleRedissonClient() {
         Config config = new Config();
         SingleServerConfig singleServerConfig = config.useSingleServer()
