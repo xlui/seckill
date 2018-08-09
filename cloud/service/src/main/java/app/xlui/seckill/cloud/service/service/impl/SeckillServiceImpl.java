@@ -1,6 +1,7 @@
 package app.xlui.seckill.cloud.service.service.impl;
 
 import app.xlui.seckill.cloud.service.aop.ServiceLock;
+import app.xlui.seckill.cloud.service.config.Const;
 import app.xlui.seckill.cloud.service.entity.Item;
 import app.xlui.seckill.cloud.service.entity.Log;
 import app.xlui.seckill.cloud.service.entity.Response;
@@ -18,10 +19,11 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static app.xlui.seckill.cloud.service.config.Const.END;
+import static app.xlui.seckill.cloud.service.config.Const.SUCCESS;
+
 @Service
 public class SeckillServiceImpl implements SeckillService {
-	private static Response SUCCESS = new Response().append("status", "success").append("msg", "successfully seckill an item!!!");
-	private static Response END = new Response().append("status", "end").append("msg", "seckill is end!");
 	private final Lock lock = new ReentrantLock();
 	private final ItemRepository itemRepository;
 	private final LogRepository logRepository;
