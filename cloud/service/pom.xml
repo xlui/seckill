@@ -5,7 +5,7 @@
 
     <groupId>app.xlui.seckill.cloud</groupId>
     <artifactId>service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <packaging>jar</packaging>
 
     <name>service</name>
@@ -26,6 +26,7 @@
         <guava.version>25.1-jre</guava.version>
         <redisson.version>3.7.5</redisson.version>
         <curator.version>4.0.1</curator.version>
+        <docker.image.prefix>xlui.seckill</docker.image.prefix>
     </properties>
 
     <dependencies>
@@ -88,6 +89,36 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <!-- Docker Maven Plugin -->
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>1.1.1</version>
+                <!-- Run `mvn package` will also run: -->
+                <!-- `docker:removeImage` `docker:build` -->
+                <executions>
+                    <execution>
+                        <id>build-image</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>removeImage</goal>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <!-- Image configurations -->
+                <configuration>
+                    <imageName>${docker.image.prefix}/service</imageName>
+                    <dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory>
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <directory>${project.build.directory}</directory>
+                            <include>${project.build.finalName}.jar</include>
+                        </resource>
+                    </resources>
+                </configuration>
             </plugin>
         </plugins>
     </build>
